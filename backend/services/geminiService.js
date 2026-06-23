@@ -1,100 +1,75 @@
 /**
  * services/geminiService.js
  *
- * Google Gemini API se resume analysis karwata hai.
- *
- * Prompt Engineering Decisions:
- * 1. "JSON only" — extra text nahi, parse easy
- * 2. Fixed schema — har baar same structure milega
- * 3. "Only from resume" — AI hallucinate na kare, jo likha hai wahi nikale
- * 4. Empty array if missing — null/error avoid
- * 5. Short resume text limit — token cost control (first 12000 chars)
+ * Google Gemini API se resume text analyze karta hai.
+ * Output: structured JSON only (skills, education, experience, projects, summary)
  */
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { callGeminiJson } = require("./geminiClient");
+
+const EMPTY_ANALYSIS = {
+  technicalSkills: [],
+  softSkills: [],
+  education: [],
+  experience: [],
+  projects: [],
+  summary: "",
+};
 
 /**
- * Resume text bhej kar structured JSON analysis lao
+ * Parsed data ko safe structure me lao
+ */
+const normalizeAnalysis = (parsed) => ({
+  technicalSkills: Array.isArray(parsed.technicalSkills)
+    ? parsed.technicalSkills
+    : [],
+  softSkills: Array.isArray(parsed.softSkills) ? parsed.softSkills : [],
+  education: Array.isArray(parsed.education) ? parsed.education : [],
+  experience: Array.isArray(parsed.experience) ? parsed.experience : [],
+  projects: Array.isArray(parsed.projects) ? parsed.projects : [],
+  summary: typeof parsed.summary === "string" ? parsed.summary : "",
+});
+
+/**
+ * Resume text → Gemini → JSON analysis
  * @param {string} resumeText
- * @returns {Object} parsed analysis
  */
 const analyzeResumeWithGemini = async (resumeText) => {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    const error = new Error(
-      "GEMINI_API_KEY .env me set nahi hai. Gemini API key add karo."
-    );
-    error.statusCode = 500;
+  if (!resumeText || resumeText.length < 50) {
+    const error = new Error("Analysis ke liye resume text bahut chhota hai.");
+    error.statusCode = 400;
     throw error;
   }
 
-  // Gemini client initialize
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
-  });
-
-  // Bahut lamba resume ho to tokens bachane ke liye trim
   const trimmedText = resumeText.slice(0, 12000);
 
-  const prompt = `You are an expert resume parser for HireSense AI.
+  const prompt = `You are an expert resume analyzer for HireSense AI.
 
-Read the resume text below and extract information.
+Extract information from the resume text below.
 
-RULES:
-- Return ONLY valid JSON. No markdown, no explanation, no code fences.
-- Extract ONLY what is clearly present in the resume. Do NOT invent data.
-- If a section is missing, use an empty array [].
+STRICT RULES:
+- Return ONLY valid JSON. No markdown, no code fences, no explanation.
+- Extract ONLY information clearly present in the resume. Do NOT invent data.
+- Use empty array [] or empty string "" if a section is missing.
 - technicalSkills = programming languages, frameworks, tools, databases
-- softSkills = communication, leadership, teamwork, etc.
-- education = array of { degree, institution, year }
-- experience = array of { role, company, duration, description }
-- projects = array of { name, description, technologies (array of strings) }
+- softSkills = communication, leadership, teamwork, problem solving, etc.
+- summary = 2-3 sentence professional overview of the candidate
 
 Required JSON format:
 {
-  "technicalSkills": ["skill1", "skill2"],
-  "softSkills": ["skill1", "skill2"],
+  "technicalSkills": ["JavaScript", "React"],
+  "softSkills": ["Communication", "Teamwork"],
   "education": [{ "degree": "", "institution": "", "year": "" }],
   "experience": [{ "role": "", "company": "", "duration": "", "description": "" }],
-  "projects": [{ "name": "", "description": "", "technologies": ["tech1"] }]
+  "projects": [{ "name": "", "description": "", "technologies": ["React"] }],
+  "summary": "Short professional summary here"
 }
 
 RESUME TEXT:
 ${trimmedText}`;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const rawText = result.response.text();
-
-    // Kabhi-kabhi Gemini ```json ... ``` wrap karta hai — hata do
-    const cleaned = rawText
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const parsed = JSON.parse(cleaned);
-
-    // Default structure ensure karo — missing keys se crash na ho
-    return {
-      technicalSkills: Array.isArray(parsed.technicalSkills)
-        ? parsed.technicalSkills
-        : [],
-      softSkills: Array.isArray(parsed.softSkills) ? parsed.softSkills : [],
-      education: Array.isArray(parsed.education) ? parsed.education : [],
-      experience: Array.isArray(parsed.experience) ? parsed.experience : [],
-      projects: Array.isArray(parsed.projects) ? parsed.projects : [],
-    };
-  } catch (error) {
-    console.error("Gemini analysis error:", error.message);
-
-    const err = new Error(
-      "Gemini se resume analyze nahi ho payi. API key check karo ya dubara try karo."
-    );
-    err.statusCode = 502;
-    throw err;
-  }
+  const parsed = await callGeminiJson(prompt);
+  return normalizeAnalysis(parsed);
 };
 
-module.exports = { analyzeResumeWithGemini };
+module.exports = { analyzeResumeWithGemini, EMPTY_ANALYSIS };

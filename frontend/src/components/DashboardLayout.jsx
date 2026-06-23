@@ -34,18 +34,22 @@ const DashboardSidebar = () => {
       ),
     },
     {
-      to: "/dashboard",
-      label: "Interviews",
+      to: "/interview",
+      label: "AI Interview",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
         </svg>
       ),
-      badge: "Soon",
     },
   ];
 
-  const isActive = (link) => location.pathname === link.to;
+  const isActive = (link) => {
+    if (link.to === "/interview") {
+      return location.pathname.startsWith("/interview");
+    }
+    return location.pathname === link.to;
+  };
 
   return (
     <aside className="hidden w-64 flex-shrink-0 border-r border-slate-800 bg-surface-900 lg:block">
@@ -78,11 +82,11 @@ const DashboardSidebar = () => {
         </nav>
 
         <Link
-          to="/resume/upload"
+          to="/interview"
           className="rounded-xl border border-brand-500/30 bg-gradient-to-br from-brand-600/10 to-violet-600/5 p-4 transition hover:border-brand-500/50"
         >
-          <p className="text-xs font-semibold text-brand-300">Upload Resume</p>
-          <p className="mt-1 text-xs text-slate-400">AI skill extraction in seconds</p>
+          <p className="text-xs font-semibold text-brand-300">AI Interview</p>
+          <p className="mt-1 text-xs text-slate-400">Personalized questions from your resume</p>
         </Link>
       </div>
     </aside>

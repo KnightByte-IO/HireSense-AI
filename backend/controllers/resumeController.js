@@ -6,13 +6,8 @@
 
 const resumeService = require("../services/resumeService");
 
-/**
- * POST /api/resume/upload
- * PDF upload → parse → Gemini → save → response
- */
 const uploadResume = async (req, res, next) => {
   try {
-    // Multer ne file req.file me daali hogi
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -20,24 +15,18 @@ const uploadResume = async (req, res, next) => {
       });
     }
 
-    const resume = await resumeService.processResumeUpload(
-      req.user._id,
-      req.file
-    );
+    const resume = await resumeService.saveResumeUpload(req.user._id, req.file);
 
     res.status(201).json({
       success: true,
-      message: "Resume upload aur AI analysis successful!",
+      message: "Resume successfully upload ho gayi!",
       data: {
         id: resume._id,
         fileName: resume.fileName,
-        resumeText: resume.resumeText,
-        extractedSkills: resume.extractedSkills,
-        education: resume.education,
-        experience: resume.experience,
-        projects: resume.projects,
+        filePath: resume.filePath,
+        fileSize: resume.fileSize,
         uploadedAt: resume.uploadedAt,
-        analysisStatus: resume.analysisStatus,
+        analysisCompleted: resume.analysisCompleted,
       },
     });
   } catch (error) {
@@ -45,10 +34,6 @@ const uploadResume = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/resume/me
- * Logged-in user ki latest resume
- */
 const getMyResume = async (req, res, next) => {
   try {
     const resume = await resumeService.getLatestResumeByUser(req.user._id);
@@ -60,19 +45,12 @@ const getMyResume = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      data: resume,
-    });
+    res.status(200).json({ success: true, data: resume });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * GET /api/resume/me/summary
- * Dashboard cards ke liye short stats
- */
 const getResumeSummary = async (req, res, next) => {
   try {
     const resume = await resumeService.getLatestResumeByUser(req.user._id);
@@ -82,25 +60,62 @@ const getResumeSummary = async (req, res, next) => {
         success: true,
         data: {
           hasResume: false,
-          totalSkills: 0,
-          lastUploadDate: null,
+          analysisCompleted: false,
+          skillsCount: 0,
+          projectsCount: 0,
+          lastAnalysisDate: null,
           fileName: null,
         },
       });
     }
 
-    const totalSkills =
-      (resume.extractedSkills?.technicalSkills?.length || 0) +
-      (resume.extractedSkills?.softSkills?.length || 0);
+    const skillsCount =
+      (resume.technicalSkills?.length || 0) + (resume.softSkills?.length || 0);
 
     res.status(200).json({
       success: true,
       data: {
         hasResume: true,
-        totalSkills,
-        lastUploadDate: resume.uploadedAt,
         fileName: resume.fileName,
-        analysisStatus: resume.analysisStatus,
+        lastUploadDate: resume.uploadedAt,
+        filePath: resume.filePath,
+        fileSize: resume.fileSize,
+        analysisCompleted: resume.analysisCompleted,
+        skillsCount,
+        projectsCount: resume.projects?.length || 0,
+        lastAnalysisDate: resume.analyzedAt,
+        resumeId: resume._id,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/resume/analyze/:resumeId
+ * PDF parse → Gemini → save analysis
+ */
+const analyzeResume = async (req, res, next) => {
+  try {
+    const { resumeId } = req.params;
+
+    const resume = await resumeService.analyzeResume(resumeId, req.user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Resume analysis successful!",
+      data: {
+        id: resume._id,
+        fileName: resume.fileName,
+        summary: resume.summary,
+        technicalSkills: resume.technicalSkills,
+        softSkills: resume.softSkills,
+        education: resume.education,
+        experience: resume.experience,
+        projects: resume.projects,
+        analysisCompleted: resume.analysisCompleted,
+        analyzedAt: resume.analyzedAt,
       },
     });
   } catch (error) {
@@ -112,4 +127,5 @@ module.exports = {
   uploadResume,
   getMyResume,
   getResumeSummary,
+  analyzeResume,
 };

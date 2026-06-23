@@ -1,17 +1,21 @@
 /**
  * models/Resume.js
  *
- * Resume document ka database schema.
+ * Resume document ka MongoDB schema.
  *
- * Fields kyu hain:
- * - userId      → Kis user ki resume hai (har user apni resume dekhe)
- * - fileName    → Original PDF ka naam (UI me dikhane ke liye)
- * - resumeText  → PDF se nikala hua plain text (Gemini ko bhejte hain)
- * - extractedSkills → AI ne nikale technical + soft skills
- * - education   → Degree, college, year wagairah
- * - experience  → Jobs, internships, company names
- * - projects    → Personal / college projects
- * - uploadedAt  → Kab upload hui (sorting & dashboard ke liye)
+ * Upload fields:
+ * - userId, fileName, filePath, fileSize, uploadedAt
+ *
+ * Analysis fields (Gemini se aate hain):
+ * - resumeText        → pdf-parse se nikala text
+ * - technicalSkills   → JS, React, Node wagairah
+ * - softSkills        → Communication, Leadership
+ * - education         → Degree, college, year
+ * - experience        → Jobs, internships
+ * - projects          → Personal projects
+ * - summary           → AI generated short overview
+ * - analysisCompleted → true jab analysis ho chuki ho
+ * - analyzedAt        → Kab analysis hui
  */
 
 const mongoose = require("mongoose");
@@ -22,22 +26,19 @@ const resumeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true, // userId se fast search
+      index: true,
     },
-    fileName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    resumeText: {
-      type: String,
-      required: true,
-    },
-    // AI analysis — nested object me technical aur soft skills alag
-    extractedSkills: {
-      technicalSkills: { type: [String], default: [] },
-      softSkills: { type: [String], default: [] },
-    },
+    fileName: { type: String, required: true, trim: true },
+    filePath: { type: String, required: true },
+    fileSize: { type: Number, required: true },
+    uploadedAt: { type: Date, default: Date.now },
+
+    // PDF se extract hua raw text
+    resumeText: { type: String, default: "" },
+
+    // Gemini analysis results
+    technicalSkills: { type: [String], default: [] },
+    softSkills: { type: [String], default: [] },
     education: {
       type: [
         {
@@ -69,15 +70,9 @@ const resumeSchema = new mongoose.Schema(
       ],
       default: [],
     },
-    uploadedAt: {
-      type: Date,
-      default: Date.now,
-    },
-    analysisStatus: {
-      type: String,
-      enum: ["pending", "completed", "failed"],
-      default: "pending",
-    },
+    summary: { type: String, default: "" },
+    analysisCompleted: { type: Boolean, default: false },
+    analyzedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

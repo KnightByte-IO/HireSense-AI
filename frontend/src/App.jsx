@@ -7,6 +7,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ResumeUpload from "./pages/ResumeUpload";
 import ResumeAnalysis from "./pages/ResumeAnalysis";
+import Interview from "./pages/Interview";
+import InterviewResults from "./pages/InterviewResults";
 
 const AppRoutes = () => {
   return (
@@ -38,6 +40,24 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <ResumeAnalysis />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/interview/:interviewId/results"
+        element={
+          <ProtectedRoute>
+            <InterviewResults />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/interview/:interviewId?"
+        element={
+          <ProtectedRoute>
+            <Interview />
           </ProtectedRoute>
         }
       />

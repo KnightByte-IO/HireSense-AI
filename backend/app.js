@@ -9,8 +9,10 @@
 
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const resumeRoutes = require("./routes/resumeRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 // Express app instance banao
@@ -21,6 +23,9 @@ app.use(cors());
 
 // JSON body parser - req.body me JSON data aane ke liye
 app.use(express.json());
+
+// Uploaded PDF files serve karo — browser se access ke liye
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Simple health check route - server chal raha hai ya nahi check karne ke liye
 app.get("/", (req, res) => {
@@ -33,8 +38,11 @@ app.get("/", (req, res) => {
 // Auth routes - /api/auth/register aur /api/auth/login
 app.use("/api/auth", authRoutes);
 
-// Resume routes - upload + AI analysis
+// Resume routes - PDF upload
 app.use("/api/resume", resumeRoutes);
+
+// Interview routes - AI question generation
+app.use("/api/interview", interviewRoutes);
 
 // Jo bhi unknown route hit ho uske liye 404
 app.use((req, res) => {

@@ -88,4 +88,48 @@ export const getResumeSummary = async () => {
   return response.data;
 };
 
+export const analyzeResume = async (resumeId) => {
+  const response = await api.post(`/api/resume/analyze/${resumeId}`);
+  return response.data;
+};
+
+// --- Interview API functions ---
+
+export const generateInterview = async (resumeId) => {
+  const response = await api.post("/api/interview/generate", { resumeId });
+  return response.data;
+};
+
+export const getInterview = async (interviewId) => {
+  const response = await api.get(`/api/interview/${interviewId}`);
+  return response.data;
+};
+
+export const submitInterviewAnswer = async (interviewId, questionIndex, answer) => {
+  const response = await api.post(`/api/interview/${interviewId}/answer`, {
+    questionIndex,
+    answer,
+  });
+  return response.data;
+};
+
+export const evaluateInterview = async (interviewId) => {
+  const response = await api.post(
+    `/api/interview/${interviewId}/evaluate`,
+    {},
+    { timeout: 300000 }
+  );
+  return response.data;
+};
+
+export const getInterviewResults = async (interviewId) => {
+  const response = await api.get(`/api/interview/${interviewId}/results`);
+  return response.data;
+};
+
+export const getInterviewPerformance = async () => {
+  const response = await api.get("/api/interview/me/summary");
+  return response.data;
+};
+
 export default api;

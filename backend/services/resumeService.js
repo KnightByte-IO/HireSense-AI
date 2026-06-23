@@ -1,70 +1,75 @@
 /**
  * services/resumeService.js
  *
- * Resume upload + AI analysis ka poora business logic.
- * Controller slim rehta hai — heavy kaam yahan hota hai.
+ * Resume upload + analysis ka poora business logic.
  */
 
 const Resume = require("../models/Resume");
-const { extractTextFromPdf } = require("./pdfService");
+const { extractTextFromFile } = require("./pdfService");
 const { analyzeResumeWithGemini } = require("./geminiService");
+const path = require("path");
 
-/**
- * PDF upload se lekar MongoDB save + Gemini analysis tak
- */
-const processResumeUpload = async (userId, file) => {
-  // Step 1: PDF se text nikalo
-  const resumeText = await extractTextFromPdf(file.buffer);
+/** PDF upload save karo */
+const saveResumeUpload = async (userId, file) => {
+  const filePath = path.join("uploads", file.filename).replace(/\\/g, "/");
 
-  // Step 2: Pehle resume save karo (text ke saath)
-  const resume = await Resume.create({
+  return Resume.create({
     userId,
     fileName: file.originalname,
-    resumeText,
-    analysisStatus: "pending",
+    filePath,
+    fileSize: file.size,
   });
-
-  try {
-    // Step 3: Gemini se analysis lao
-    const analysis = await analyzeResumeWithGemini(resumeText);
-
-    // Step 4: Analysis MongoDB me update karo
-    resume.extractedSkills = {
-      technicalSkills: analysis.technicalSkills,
-      softSkills: analysis.softSkills,
-    };
-    resume.education = analysis.education;
-    resume.experience = analysis.experience;
-    resume.projects = analysis.projects;
-    resume.analysisStatus = "completed";
-
-    await resume.save();
-
-    return resume;
-  } catch (error) {
-    // Gemini fail ho to bhi resume text saved rahe
-    resume.analysisStatus = "failed";
-    await resume.save();
-    throw error;
-  }
 };
 
-/**
- * User ki latest resume lao (dashboard ke liye)
- */
+/** User ki latest resume */
 const getLatestResumeByUser = async (userId) => {
   return Resume.findOne({ userId }).sort({ uploadedAt: -1 });
 };
 
+/** ID se resume dhoondo — sirf usi user ki */
+const getResumeByIdForUser = async (resumeId, userId) => {
+  return Resume.findOne({ _id: resumeId, userId });
+};
+
 /**
- * User ki saari resumes (history — optional)
+ * POST /api/resume/analyze/:resumeId
+ * Flow: Fetch → Parse PDF → Gemini → Save → Return
  */
-const getResumesByUser = async (userId) => {
-  return Resume.find({ userId }).sort({ uploadedAt: -1 });
+const analyzeResume = async (resumeId, userId) => {
+  // Step 1: Resume fetch karo
+  const resume = await getResumeByIdForUser(resumeId, userId);
+
+  if (!resume) {
+    const error = new Error("Resume nahi mili ya aapke paas access nahi hai");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Step 2: PDF se text extract karo (terminal me bhi print hoga)
+  const resumeText = await extractTextFromFile(resume.filePath);
+  resume.resumeText = resumeText;
+
+  // Step 3: Gemini ko bhejo
+  const analysis = await analyzeResumeWithGemini(resumeText);
+
+  // Step 4: MongoDB me save karo
+  resume.technicalSkills = analysis.technicalSkills;
+  resume.softSkills = analysis.softSkills;
+  resume.education = analysis.education;
+  resume.experience = analysis.experience;
+  resume.projects = analysis.projects;
+  resume.summary = analysis.summary;
+  resume.analysisCompleted = true;
+  resume.analyzedAt = new Date();
+
+  await resume.save();
+
+  return resume;
 };
 
 module.exports = {
-  processResumeUpload,
+  saveResumeUpload,
   getLatestResumeByUser,
-  getResumesByUser,
+  getResumeByIdForUser,
+  analyzeResume,
 };
