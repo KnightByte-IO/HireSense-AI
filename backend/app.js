@@ -10,6 +10,7 @@
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 // Express app instance banao
@@ -31,6 +32,9 @@ app.get("/", (req, res) => {
 
 // Auth routes - /api/auth/register aur /api/auth/login
 app.use("/api/auth", authRoutes);
+
+// Resume routes - upload + AI analysis
+app.use("/api/resume", resumeRoutes);
 
 // Jo bhi unknown route hit ho uske liye 404
 app.use((req, res) => {

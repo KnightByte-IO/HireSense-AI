@@ -5,23 +5,39 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import ResumeUpload from "./pages/ResumeUpload";
+import ResumeAnalysis from "./pages/ResumeAnalysis";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Landing page - pehla page jo user dekhega */}
       <Route path="/" element={<Home />} />
-
-      {/* Auth pages */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected dashboard */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resume/upload"
+        element={
+          <ProtectedRoute>
+            <ResumeUpload />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resume/analysis"
+        element={
+          <ProtectedRoute>
+            <ResumeAnalysis />
           </ProtectedRoute>
         }
       />

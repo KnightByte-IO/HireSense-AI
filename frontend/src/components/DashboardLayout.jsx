@@ -16,6 +16,24 @@ const DashboardSidebar = () => {
       ),
     },
     {
+      to: "/resume/upload",
+      label: "Upload Resume",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+      ),
+    },
+    {
+      to: "/resume/analysis",
+      label: "Resume Analysis",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+        </svg>
+      ),
+    },
+    {
       to: "/dashboard",
       label: "Interviews",
       icon: (
@@ -25,17 +43,9 @@ const DashboardSidebar = () => {
       ),
       badge: "Soon",
     },
-    {
-      to: "/dashboard",
-      label: "Analytics",
-      icon: (
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-        </svg>
-      ),
-      badge: "Soon",
-    },
   ];
+
+  const isActive = (link) => location.pathname === link.to;
 
   return (
     <aside className="hidden w-64 flex-shrink-0 border-r border-slate-800 bg-surface-900 lg:block">
@@ -51,7 +61,7 @@ const DashboardSidebar = () => {
               key={link.label}
               to={link.to}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                location.pathname === link.to && link.label === "Overview"
+                isActive(link)
                   ? "bg-brand-500/10 text-brand-300"
                   : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
               }`}
@@ -67,19 +77,19 @@ const DashboardSidebar = () => {
           ))}
         </nav>
 
-        <div className="rounded-xl border border-slate-800 bg-gradient-to-br from-brand-600/10 to-violet-600/5 p-4">
-          <p className="text-xs font-semibold text-brand-300">Upgrade to Pro</p>
-          <p className="mt-1 text-xs text-slate-400">Unlimited AI interviews & advanced analytics.</p>
-          <button className="mt-3 w-full rounded-lg bg-brand-600/20 py-2 text-xs font-semibold text-brand-300 transition hover:bg-brand-600/30">
-            Coming Soon
-          </button>
-        </div>
+        <Link
+          to="/resume/upload"
+          className="rounded-xl border border-brand-500/30 bg-gradient-to-br from-brand-600/10 to-violet-600/5 p-4 transition hover:border-brand-500/50"
+        >
+          <p className="text-xs font-semibold text-brand-300">Upload Resume</p>
+          <p className="mt-1 text-xs text-slate-400">AI skill extraction in seconds</p>
+        </Link>
       </div>
     </aside>
   );
 };
 
-const DashboardHeader = () => {
+const DashboardHeader = ({ title = "Dashboard", subtitle = "Overview" }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -96,8 +106,8 @@ const DashboardHeader = () => {
         </div>
 
         <div className="hidden lg:block">
-          <h2 className="text-sm font-medium text-slate-400">Dashboard</h2>
-          <p className="text-lg font-semibold text-white">Overview</p>
+          <h2 className="text-sm font-medium text-slate-400">{title}</h2>
+          <p className="text-lg font-semibold text-white">{subtitle}</p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -127,12 +137,12 @@ const DashboardHeader = () => {
   );
 };
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, title, subtitle }) => {
   return (
     <div className="flex min-h-screen bg-surface-900">
       <DashboardSidebar />
       <div className="flex flex-1 flex-col">
-        <DashboardHeader />
+        <DashboardHeader title={title} subtitle={subtitle} />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>

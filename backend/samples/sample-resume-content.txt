@@ -1,0 +1,24 @@
+AYUSH KUMAR
+Email: ayush@example.com | Phone: +91 9876543210
+
+EDUCATION
+B.Tech Computer Science - XYZ University (2022-2026)
+CGPA: 8.5/10
+
+TECHNICAL SKILLS
+JavaScript, React, Node.js, Express, MongoDB, HTML, CSS, Tailwind CSS, Git, REST APIs
+
+SOFT SKILLS
+Communication, Teamwork, Problem Solving, Leadership, Time Management
+
+EXPERIENCE
+Frontend Developer Intern - ABC Tech (Jun 2025 - Aug 2025)
+- Built React dashboard components
+- Integrated REST APIs with Axios
+
+PROJECTS
+HireSense AI - MERN stack interview prep platform with JWT auth and AI resume analysis
+Technologies: React, Node.js, MongoDB, Gemini API
+
+E-Commerce App - Full stack shopping app with cart and payment UI
+Technologies: React, Express, MongoDB

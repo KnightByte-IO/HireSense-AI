@@ -66,4 +66,26 @@ export const loginUser = async (credentials) => {
   return response.data;
 };
 
+// --- Resume API functions ---
+
+export const uploadResume = async (file) => {
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  const response = await api.post("/api/resume/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+};
+
+export const getMyResume = async () => {
+  const response = await api.get("/api/resume/me");
+  return response.data;
+};
+
+export const getResumeSummary = async () => {
+  const response = await api.get("/api/resume/me/summary");
+  return response.data;
+};
+
 export default api;
