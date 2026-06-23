@@ -10,16 +10,27 @@ const mongoose = require("mongoose");
 
 // Database se connection banane wala function
 const connectDB = async () => {
-  try {
-    // process.env.MONGO_URI .env file se aata hai
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+  if (!process.env.MONGO_URI) {
+    console.error("MONGO_URI environment variable missing hai");
+    process.exit(1);
+  }
 
-    // Connection successful hone par log print karo
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+    });
+
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    // Agar connection fail ho jaye to error dikhao aur process band karo
     console.error(`Database connection error: ${error.message}`);
-    process.exit(1); // 1 = error ke saath exit
+
+    if (error.message.includes("whitelist") || error.message.includes("Could not connect")) {
+      console.error(
+        "Fix: MongoDB Atlas → Network Access → Add IP → Allow 0.0.0.0/0 (for Render/cloud deploy)"
+      );
+    }
+
+    process.exit(1);
   }
 };
 
