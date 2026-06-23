@@ -9,7 +9,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 
-[Live Demo](#) · [Report Bug](https://github.com/KnightByte-IO/HireSense-AI/issues) · [Request Feature](https://github.com/KnightByte-IO/HireSense-AI/issues)
+[Live App](https://hires-ai.netlify.app/) · [Backend API](https://hiresense-ai-0ise.onrender.com/) · [Report Bug](https://github.com/KnightByte-IO/HireSense-AI/issues) · [Request Feature](https://github.com/KnightByte-IO/HireSense-AI/issues)
 
 </div>
 
@@ -171,6 +171,38 @@ npm run dev
 ```
 
 App runs at **http://localhost:5173**
+
+---
+
+## Deployment
+
+### Live URLs
+
+| Service | URL |
+|---------|-----|
+| **Frontend (Netlify)** | [https://hires-ai.netlify.app/](https://hires-ai.netlify.app/) |
+| **Backend API (Render)** | [https://hiresense-ai-0ise.onrender.com/](https://hiresense-ai-0ise.onrender.com/) |
+
+### Backend (Render)
+
+Health check response:
+```json
+{"success":true,"message":"HireSense AI API chal rahi hai!"}
+```
+
+### Frontend (Netlify) — Live
+
+**App:** [https://hires-ai.netlify.app/](https://hires-ai.netlify.app/)
+
+Environment variable on Netlify:
+
+```env
+VITE_API_URL=https://hiresense-ai-0ise.onrender.com
+```
+
+Build command: `npm run build`  
+Output directory: `dist`  
+Root directory: `frontend`
 
 ---
 
