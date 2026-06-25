@@ -9,7 +9,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 
-[Live App](https://hires-ai.netlify.app/) · [Backend API](https://hiresense-ai-0ise.onrender.com/) · [Report Bug](https://github.com/KnightByte-IO/HireSense-AI/issues) · [Request Feature](https://github.com/KnightByte-IO/HireSense-AI/issues)
+[Live App](https://hires-ai.netlify.app/) · [Backend API](https://hiresense-ai-0ise.onrender.com/) · [Project Report (PDF)](https://drive.google.com/file/d/1DkPxPDTgzTys1bLF-owt2GohcRb5tTEz/view?usp=drive_link) · [Report Bug](https://github.com/KnightByte-IO/HireSense-AI/issues) · [Request Feature](https://github.com/KnightByte-IO/HireSense-AI/issues)
 
 </div>
 
@@ -20,6 +20,8 @@
 **HireSense AI** helps candidates prepare for real interviews using their own resume. Upload a PDF, let Gemini extract skills and experience, generate personalized interview questions, answer them in a guided UI, and get an AI performance report with scores, strengths, weaknesses, and ideal answers.
 
 > Built for portfolio projects, hackathons, and interview prep — clean MERN architecture, beginner-friendly code, production-ready patterns.
+
+📄 **[Full Project Report (PDF)](https://drive.google.com/file/d/1DkPxPDTgzTys1bLF-owt2GohcRb5tTEz/view?usp=drive_link)** — architecture, features, and implementation details.
 
 ---
 
