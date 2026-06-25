@@ -1,0 +1,13 @@
+# Netlify must read this from the repository root.
+# Base directory = frontend so build runs inside the React app.
+
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
